@@ -22,7 +22,7 @@ const formSchema = z.object({
   }),
 });
 
-export default function CategoryForm() {
+export default function CategoryForm({ setRowData }: any) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

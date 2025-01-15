@@ -62,6 +62,19 @@ body {
   } */
 }
 
+.ag-header-cell-text {
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center
+}
+
+.ag-header-cell-label {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 @layer base {
   * {
     @apply border-border;

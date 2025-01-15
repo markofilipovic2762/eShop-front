@@ -12,43 +12,41 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Input } from "@/components/ui/input";
+import { AxiosResponse } from "axios";
 import { api } from "@/lib/apiConfig";
 
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  categoryId: z.string(),
+  phone: z.string().min(2, {
+    message: "Phone must be at least 2 characters.",
+  }),
+  email: z.string().email({
+    message: "Must be a valid email.",
+  })
 });
 
-type SubcategoryFormProps = {
-  categories: Array<any>;
-  setRowData: any;
-}
-
-export default function SubcategoryForm( { categories, setRowData }: SubcategoryFormProps ) {
+export default function CategoryForm({ setRowData }: any) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      categoryId: undefined,
+      phone: "",
+      email: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    api.post('/subcategories', values).then( res => {
-      setRowData(prev => [...prev, values]);
-      alert(`Uspesno uneta podkategorija! ${res.data}`);
-    })
-    .catch( err => alert("Dogodila se greska!") )
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response: AxiosResponse = await api.post("/shippers/", values);
+      if (response) {
+        alert("Uspesno unet dostavljac!");
+      }
+    } catch {
+      alert("Greska prilikom unosenja dostavljaca");
+    }
   }
 
   return (
@@ -58,7 +56,7 @@ export default function SubcategoryForm( { categories, setRowData }: Subcategory
         className="flex flex-col gap-6"
       >
         <FormLabel className="text-2xl text-black">
-          Unesi novu podkategoriju
+          Unesi novog dostavljaca
         </FormLabel>
         <FormField
           control={form.control}
@@ -66,7 +64,7 @@ export default function SubcategoryForm( { categories, setRowData }: Subcategory
           render={({ field }) => (
             <FormItem className="text-gray-600">
               <FormControl>
-                <Input placeholder={`Ime podkategorije... `} {...field} />
+                <Input placeholder={`Ime dostavljaca... `} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -75,24 +73,25 @@ export default function SubcategoryForm( { categories, setRowData }: Subcategory
 
         <FormField
           control={form.control}
-          name="categoryId"
+          name="phone"
           render={({ field }) => (
-            <FormItem className="text-gray-600" >
-              <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
-                <FormControl className="text-gray-600">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                </FormControl>
+            <FormItem className="text-gray-600">
+              <FormControl>
+                <Input placeholder={`Telefon dostavljaca... `} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-                <SelectContent className="text-gray-600">
-                  {categories.map((category) => (
-                    <SelectItem className="text-gray-600" key={category.id} value={category.id.toString()}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem className="text-gray-600">
+              <FormControl>
+                <Input type="email" placeholder={`Email dostavljaca... `} {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -100,7 +99,7 @@ export default function SubcategoryForm( { categories, setRowData }: Subcategory
 
         <div className="flex justify-center items-center mt-4">
           <Button type="submit" className="bg-blue-600 w-full text-2xl p-4">
-            Submit
+            Dodaj
           </Button>
         </div>
       </form>

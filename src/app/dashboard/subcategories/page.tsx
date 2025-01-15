@@ -1,11 +1,12 @@
 "use client";
-import React, { useState, useMemo, useEffect, use } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { AllCommunityModule, ColDef, ModuleRegistry } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { Button } from "@/components/ui/button";
 import CategoryForm from "@/components/forms/CategoryForm";
 import SubcategoryForm from "@/components/forms/SubcategoryForm";
 import { api } from "@/lib/apiConfig";
+import { AxiosResponse } from "axios";
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -27,17 +28,21 @@ const SubcategoriesPage = () => {
   const [rowData, setRowData] = useState([]);
 
   useEffect(() => {
-    api.get("/categories").then((response) => setCategories(response.data));
-  }, []);
+    Promise.all([api.get("/categories"), api.get("/subcategories")]).then(
+      ([categoriesResponse, subcategoriesResponse]) => {
+        setCategories(categoriesResponse.data);
+        setRowData(subcategoriesResponse.data);
+      }
+    );
+  }, [setCategories, setRowData]);
 
-  useEffect(() => {
-    api.get("/subcategories").then((response) => setRowData(response.data));
-  }, []);
-
-  console.log(categories);
+  const getCategoryName = (id: string | number) => {
+    const category = categories?.find((category) => String(category.id) === String(id));
+    return category?.name || "N/A";
+  };
 
   // Column Definitions: Defines the columns to be displayed.
-  const [colDefs, setColDefs] = useState<ColDef[]>([
+  const colDefs = useMemo<ColDef[]>(() => [
     {
       field: "id",
       filter: true,
@@ -51,13 +56,10 @@ const SubcategoriesPage = () => {
     {
       field: "categoryId",
       headerName: "Kategorija",
-      valueGetter: (p) => {
-        const category = categories?.find(
-          (category) => category.id === p.data.categoryId
-        );
-        return category?.name;
-      }, // categories.find((category) => category.id === p.data.categoryId),
-      // valueGetter: (p) => categories.find((category) => category.id === p.data.categoryId)?.name,
+      valueGetter: (params) => {
+        if (!categories || categories.length === 0) return "Loading...";
+        return getCategoryName(params.data?.categoryId);
+      },
       filter: true,
       floatingFilter: true,
       flex: 1,
@@ -68,7 +70,7 @@ const SubcategoriesPage = () => {
       cellRenderer: EditButtonComponent,
       flex: 1,
     },
-  ]);
+  ], [categories]);
 
   const defaultColDef = useMemo(() => {
     return {
@@ -81,17 +83,19 @@ const SubcategoriesPage = () => {
       // define a height because the Data Grid will fill the size of the parent container
       style={{ display: "flex", height: "90vh", width: "100%" }}
     >
-      <AgGridReact
-        className="w-2/3 h-full"
-        rowData={rowData}
-        columnDefs={colDefs}
-        pagination={pagination}
-        paginationPageSize={paginationPageSize}
-        paginationPageSizeSelector={paginationPageSizeSelector}
-        defaultColDef={defaultColDef}
-      />
+      {categories && (
+        <AgGridReact
+          className="w-2/3 h-full"
+          rowData={rowData}
+          columnDefs={colDefs}
+          pagination={pagination}
+          paginationPageSize={paginationPageSize}
+          paginationPageSizeSelector={paginationPageSizeSelector}
+          defaultColDef={defaultColDef}
+        />
+      )}
       <div className="flex justify-center w-1/3 px-4">
-        <SubcategoryForm categories={categories} />
+        <SubcategoryForm categories={categories} setRowData={setRowData} />
       </div>
     </div>
   );

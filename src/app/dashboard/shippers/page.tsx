@@ -5,6 +5,7 @@ import { AgGridReact } from "ag-grid-react";
 import { Button } from "@/components/ui/button";
 import CategoryForm from "@/components/forms/CategoryForm";
 import { api } from "@/lib/apiConfig";
+import ShipperForm from "@/components/forms/ShipperForm";
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -17,14 +18,14 @@ const EditButtonComponent = ({ className }: any) => {
   );
 };
 
-const CategoriesPage = () => {
+const ShippersPage = () => {
   const pagination = true;
   const paginationPageSize = 10;
   const paginationPageSizeSelector = [10, 20, 50];
   const [rowData, setRowData] = useState([]);
 
   useEffect(() => {
-    api.get("/categories").then((response) => setRowData(response.data));
+    api.get("/shippers").then((response) => setRowData(response.data));
   }, [setRowData]);
 
   // Column Definitions: Defines the columns to be displayed.
@@ -44,6 +45,22 @@ const CategoriesPage = () => {
         flex: 5,
         cellStyle: { textAlign: "center" },
       },
+      {
+        field: "phone",
+        headerName: "Telefon",
+        filter: true,
+        floatingFilter: true,
+        flex: 5,
+        cellStyle: { textAlign: "center" },
+    },
+    {
+        field: "email",
+        headerName: "Email",
+        filter: true,
+        floatingFilter: true,
+        flex: 5,
+        cellStyle: { textAlign: "center" },
+    }   
     ],
     []
   );
@@ -69,10 +86,10 @@ const CategoriesPage = () => {
         defaultColDef={defaultColDef}
       />
       <div className="flex justify-center w-1/3 px-4">
-        <CategoryForm setRowData={setRowData} />
+        <ShipperForm setRowData={setRowData} />
       </div>
     </div>
   );
 };
 
-export default CategoriesPage;
+export default ShippersPage;
