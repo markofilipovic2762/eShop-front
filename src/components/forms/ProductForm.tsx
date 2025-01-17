@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Label } from "../ui/label";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -65,7 +66,7 @@ export function ProductForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <FormLabel className="text-2xl text-black">
+        <FormLabel className="text-2xl text-gray-800">
           Unesi podatke o proizvodu
         </FormLabel>
         <FormField
@@ -90,7 +91,7 @@ export function ProductForm() {
             <FormItem>
               <FormControl>
                 <Input
-                  className="text-black"
+                  className="text-gray-600"
                   placeholder={`Unesi opis... `}
                   {...field}
                 />
@@ -109,7 +110,7 @@ export function ProductForm() {
             <FormItem>
               <FormControl>
                 <Input
-                  className="text-black"
+                  className="text-gray-600"
                   placeholder={`Unesi cenu... `}
                   {...field}
                 />
@@ -128,8 +129,8 @@ export function ProductForm() {
             <FormItem>
               <Select>
                 <FormControl>
-                  <SelectTrigger className="text-black">
-                    <SelectValue placeholder="Select category" />
+                  <SelectTrigger className="text-gray-600">
+                    <SelectValue placeholder="Odaberi kategoriju" />
                   </SelectTrigger>
                 </FormControl>
 
@@ -139,9 +140,6 @@ export function ProductForm() {
                   <SelectItem value="system">System</SelectItem>
                 </SelectContent>
               </Select>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
@@ -153,8 +151,8 @@ export function ProductForm() {
             <FormItem>
               <Select>
                 <FormControl>
-                  <SelectTrigger className="text-black">
-                    <SelectValue placeholder="Select subcategory" />
+                  <SelectTrigger className="text-gray-600">
+                    <SelectValue placeholder="Odaberi podkategoriju" />
                   </SelectTrigger>
                 </FormControl>
 
@@ -178,8 +176,8 @@ export function ProductForm() {
             <FormItem>
               <Select>
                 <FormControl>
-                  <SelectTrigger className="text-black">
-                    <SelectValue placeholder="Select supplier" />
+                  <SelectTrigger className="text-gray-600">
+                    <SelectValue placeholder="Odaberi dobavljača" />
                   </SelectTrigger>
                 </FormControl>
 
@@ -201,10 +199,14 @@ export function ProductForm() {
           name="imageUrl"
           render={({ field }) => (
             <FormItem>
+              <FormLabel className="text-sm text-gray-700">
+                Unesi sliku proizvoda
+              </FormLabel>
               <FormControl>
+                {/* <label htmlFor="imageUrl" >Unesi sliku proizvoda</label> */}
                 <Input
                   type="file"
-                  className="text-black"
+                  className="text-gray-700 cursor-pointer"
                   accept="image/*"
                   placeholder={`Unesi sliku... `}
                   {...field}
@@ -219,7 +221,7 @@ export function ProductForm() {
         />
         <div className="flex justify-center items-center mt-4">
           <Button type="submit" className="bg-blue-600 w-full text-2xl p-4">
-            Submit
+            Dodaj proizvod
           </Button>
         </div>
       </form>

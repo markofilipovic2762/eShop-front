@@ -34,7 +34,10 @@ export default function CategoryForm({ setRowData }: any) {
     try {
         const response: AxiosResponse = await api.post('/categories/',values);
         if(response){
-            alert("Uspesno uneta kategorija!")
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+            //setRowData((prev: any) => [...prev, values]);
         }
     } catch {
         alert("Greska prilikom unosenja kategorije")
@@ -56,7 +59,7 @@ export default function CategoryForm({ setRowData }: any) {
           render={({ field }) => (
             <FormItem className="text-gray-600">
               <FormControl>
-                <Input placeholder={`Ime kategorije... `} {...field} />
+                <Input className="p-4" placeholder={`Ime kategorije... `} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -65,7 +68,7 @@ export default function CategoryForm({ setRowData }: any) {
         
         <div className="flex justify-center items-center mt-4">
           <Button type="submit" className="bg-blue-600 w-full text-2xl p-4">
-            Submit
+            Dodaj
           </Button>
         </div>
       </form>

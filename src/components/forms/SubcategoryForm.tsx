@@ -45,7 +45,7 @@ export default function SubcategoryForm( { categories, setRowData }: Subcategory
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     api.post('/subcategories', values).then( res => {
-      setRowData(prev => [...prev, values]);
+      setRowData((prev: any) => [...prev, values]);
       alert(`Uspesno uneta podkategorija! ${res.data}`);
     })
     .catch( err => alert("Dogodila se greska!") )
@@ -81,7 +81,7 @@ export default function SubcategoryForm( { categories, setRowData }: Subcategory
               <Select onValueChange={field.onChange} defaultValue={field.value?.toString()}>
                 <FormControl className="text-gray-600">
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Odaberi kategoriju" />
                   </SelectTrigger>
                 </FormControl>
 

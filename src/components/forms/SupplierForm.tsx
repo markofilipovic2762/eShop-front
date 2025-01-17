@@ -37,19 +37,21 @@ const formSchema = z.object({
 export default function SupplierForm({ setRowData }: any) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      phone: "",
-      email: "",
-    },
+    // defaultValues: {
+    //   name: "",
+    //   phone: "",
+    //   email: "",
+    //   address: "",
+    //   city: "",
+    // },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response: AxiosResponse = await api.post("/shippers/", values);
+      const response: AxiosResponse = await api.post("/suppliers/", values);
       if (response) {
         setRowData((prev: any) => [...prev, values]);
-        alert("Uspesno unet dostavljac!");
+        alert("Uspesno unet dobavljac!");
       }
     } catch {
       alert("Greska prilikom unosenja dostavljaca");
@@ -71,7 +73,7 @@ export default function SupplierForm({ setRowData }: any) {
           render={({ field }) => (
             <FormItem className="text-gray-600">
               <FormControl>
-                <Input placeholder={`Ime dostavljaca... `} {...field} />
+                <Input placeholder={`Ime dobavljaca... `} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -110,7 +112,7 @@ export default function SupplierForm({ setRowData }: any) {
           render={({ field }) => (
             <FormItem className="text-gray-600">
               <FormControl>
-                <Input placeholder={`Telefon dostavljaca... `} {...field} />
+                <Input placeholder={`Telefon dobavljaca... `} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -125,7 +127,7 @@ export default function SupplierForm({ setRowData }: any) {
               <FormControl>
                 <Input
                   type="email"
-                  placeholder={`Email dostavljaca... `}
+                  placeholder={`Email dobavljaca... `}
                   {...field}
                 />
               </FormControl>

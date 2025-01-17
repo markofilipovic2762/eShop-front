@@ -46,13 +46,9 @@ const SubcategoriesPage = () => {
     {
       field: "id",
       filter: true,
-      cellEditor: "agSelectCellEditor",
-      cellEditorParams: {
-        values: ["Tesla", "Ford", "Toyota"],
-      },
       flex: 1,
     },
-    { field: "name", filter: true, floatingFilter: true, flex: 1 },
+    { field: "name", headerName: "Ime", filter: true, floatingFilter: true, flex: 1 },
     {
       field: "categoryId",
       headerName: "Kategorija",
@@ -67,6 +63,7 @@ const SubcategoriesPage = () => {
     {
       field: "action",
       filter: false,
+      cellStyle: { textAlign: "center" },
       cellRenderer: EditButtonComponent,
       flex: 1,
     },
