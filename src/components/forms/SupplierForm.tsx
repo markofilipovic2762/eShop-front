@@ -37,13 +37,13 @@ const formSchema = z.object({
 export default function SupplierForm({ setRowData }: any) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    // defaultValues: {
-    //   name: "",
-    //   phone: "",
-    //   email: "",
-    //   address: "",
-    //   city: "",
-    // },
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      address: "",
+      city: "",
+    },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -64,8 +64,8 @@ export default function SupplierForm({ setRowData }: any) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <FormLabel className="text-2xl text-black">
-          Unesi novog dobavljaca
+        <FormLabel className="text-3xl text-gray-600">
+          Unesi novog dobavljača
         </FormLabel>
         <FormField
           control={form.control}

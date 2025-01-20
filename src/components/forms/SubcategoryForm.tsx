@@ -46,9 +46,10 @@ export default function SubcategoryForm( { categories, setRowData }: Subcategory
   function onSubmit(values: z.infer<typeof formSchema>) {
     api.post('/subcategories', values).then( res => {
       setRowData((prev: any) => [...prev, values]);
+      form.reset();
       alert(`Uspesno uneta podkategorija! ${res.data}`);
     })
-    .catch( err => alert("Dogodila se greska!") )
+    .catch( err => alert("Dogodila se greska!"))
   }
 
   return (

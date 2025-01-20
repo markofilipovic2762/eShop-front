@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { set, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Label } from "../ui/label";
+import { api } from "@/lib/apiConfig";
+import { AxiosResponse } from "axios";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -31,33 +33,66 @@ const formSchema = z.object({
   description: z.string().min(2, {
     message: "Description must be at least 2 characters.",
   }),
-  price: z.number(),
-  amount: z.number(),
-  categoryId: z.number(),
-  subcategoryId: z.number(),
-  supplierId: z.number(),
+  price: z.number().or(z.null()),
+  amount: z.number().or(z.null()),
+  categoryId: z.string(),
+  subcategoryId: z.string(),
+  supplierId: z.string(),
   imageUrl: z.string(),
 });
 
-export function ProductForm() {
+type ProductFormProps = {
+  setRowData: any;
+  categories: any;
+  suppliers: any;
+  getSubcategories: any;
+}
+
+export function ProductForm({ setRowData, categories, suppliers, getSubcategories }: ProductFormProps) {
+  const [subcategories, setSubcategories] = useState([]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
-      price: undefined,
-      amount: undefined,
-      categoryId: undefined,
-      subcategoryId: undefined,
-      supplierId: undefined,
+      price: null, // ili 0
+      amount: null, // ili 0
+      categoryId: "",
+      subcategoryId: "",
+      supplierId: "",
       imageUrl: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  const watchedCategoryId = useWatch({
+    control: form.control,
+    name: "categoryId",
+  });
+
+  useEffect(() => {
+    const fetchSubcategories = async () => {
+      if (watchedCategoryId !== undefined && watchedCategoryId !== null) {
+        const result = await getSubcategories(watchedCategoryId);
+        console.log("Rezultat subkategorija:", result);
+        setSubcategories(result || []);
+      } else {
+        setSubcategories([]);
+      }
+    };
+
+    fetchSubcategories();
+  }, [watchedCategoryId]);
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response: AxiosResponse = await api.post("/products/", values);
+      if (response) {
+        form.reset();
+        setRowData((prev: any) => [...prev, values]);
+        alert("Uspesno unet proizvod!");
+      }
+    } catch (error) {}
   }
 
   return (
@@ -66,7 +101,7 @@ export function ProductForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <FormLabel className="text-2xl text-gray-800">
+        <FormLabel className="text-3xl text-gray-800">
           Unesi podatke o proizvodu
         </FormLabel>
         <FormField
@@ -77,9 +112,6 @@ export function ProductForm() {
               <FormControl>
                 <Input placeholder={`Unesi ime proizvoda... `} {...field} />
               </FormControl>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
@@ -96,9 +128,6 @@ export function ProductForm() {
                   {...field}
                 />
               </FormControl>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
@@ -112,12 +141,38 @@ export function ProductForm() {
                 <Input
                   className="text-gray-600"
                   placeholder={`Unesi cenu... `}
-                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value ? parseFloat(e.target.value) : null
+                    )
+                  }
+                  // {...field}
                 />
               </FormControl>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="amount"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  className="text-gray-600"
+                  placeholder={`Unesi kolicinu... `}
+                  value={field.value || ""}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value ? parseFloat(e.target.value) : null
+                    )
+                  }
+                  // {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -126,18 +181,27 @@ export function ProductForm() {
           control={form.control}
           name="categoryId"
           render={({ field }) => (
-            <FormItem>
-              <Select>
-                <FormControl>
-                  <SelectTrigger className="text-gray-600">
+            <FormItem className="text-gray-600">
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value?.toString()}
+              >
+                <FormControl className="text-gray-600">
+                  <SelectTrigger>
                     <SelectValue placeholder="Odaberi kategoriju" />
                   </SelectTrigger>
                 </FormControl>
 
-                <SelectContent>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
+                <SelectContent className="text-gray-600">
+                  {categories?.map((category: any) => (
+                    <SelectItem
+                      className="text-gray-600"
+                      key={category.id}
+                      value={category.id.toString()}
+                    >
+                      {category.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -146,50 +210,64 @@ export function ProductForm() {
         />
         <FormField
           control={form.control}
+          disabled={!watchedCategoryId}
           name="subcategoryId"
           render={({ field }) => (
-            <FormItem>
-              <Select>
-                <FormControl>
-                  <SelectTrigger className="text-gray-600">
+            <FormItem className="text-gray-600">
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value?.toString()}
+              >
+                <FormControl className="text-gray-600">
+                  <SelectTrigger>
                     <SelectValue placeholder="Odaberi podkategoriju" />
                   </SelectTrigger>
                 </FormControl>
 
-                <SelectContent>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
+                <SelectContent className="text-gray-600">
+                  {subcategories?.map((subcategory: any) => (
+                    <SelectItem
+                      className="text-gray-600"
+                      key={subcategory.id}
+                      value={subcategory.id.toString()}
+                    >
+                      {subcategory.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
+          //disabled={!watchedCategoryId}
           name="supplierId"
           render={({ field }) => (
-            <FormItem>
-              <Select>
-                <FormControl>
-                  <SelectTrigger className="text-gray-600">
-                    <SelectValue placeholder="Odaberi dobavljača" />
+            <FormItem className="text-gray-600">
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value?.toString()}
+              >
+                <FormControl className="text-gray-600">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Odaberi dobavljaca" />
                   </SelectTrigger>
                 </FormControl>
 
-                <SelectContent>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
+                <SelectContent className="text-gray-600">
+                  {suppliers?.map((supplier: any) => (
+                    <SelectItem
+                      className="text-gray-600"
+                      key={supplier.id}
+                      value={supplier.id.toString()}
+                    >
+                      {supplier.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}

@@ -1,9 +1,10 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { AllCommunityModule, ColDef, ModuleRegistry } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { Button } from "@/components/ui/button";
 import { ProductForm } from "@/components/forms/ProductForm";
+import { api } from "@/lib/apiConfig";
 
 // Register all Community features
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -18,12 +19,33 @@ const EditButtonComponent = ({ className }: any) => {
 
 const ProductsPage = () => {
   const pagination = true;
-  const paginationPageSize = 500;
-  const paginationPageSizeSelector = [200, 500, 1000];
+  const paginationPageSize = 20;
+  const paginationPageSizeSelector = [20, 50, 100];
   const [rowData, setRowData] = useState([]);
 
+  const [categories,setCategories] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+
+  useEffect(() => {
+    api.get("/products").then((response) => setRowData(response.data));
+  }, [setRowData]);
+
+  useEffect(() => {
+    api.get("/categories").then((response) => setCategories(response.data));
+    api.get("/suppliers").then((response) => setSuppliers(response.data));
+  },[setCategories,setSuppliers]);
+
+  const getSubcategories = async (id: number) => {
+    const response = await api.get(`/subcategories?id=${id}`);
+    return response.data;
+  }
   // Column Definitions: Defines the columns to be displayed.
   const colDefs = useMemo<ColDef[]>(() => [
+    {
+      field: "id",
+      filter: true,
+      flex: 1,
+    },
     {
       field: "name",
       headerName: "Ime",
@@ -32,9 +54,9 @@ const ProductsPage = () => {
     },
     { field: "price", headerName: "Cena", filter: "agNumberColumnFilter", flex: 1 },
     { field: "amount", headerName: "Količina", filter: true, floatingFilter: true, flex: 1 },
-    { field: "categoryId", headerName: "Kategorija", filter: true, flex: 1 },
-    { field: "subcategoryId", headerName: "Podkategorija", filter: true, floatingFilter: true, flex: 1 },
-    { field: "supplierId", headerName: "Dobavljač", filter: true, floatingFilter: true, flex: 1 },
+    { field: "categoryName", headerName: "Kategorija", filter: true, flex: 1 },
+    { field: "subcategoryName", headerName: "Podkategorija", filter: true, floatingFilter: true, flex: 1 },
+    { field: "supplierName", headerName: "Dobavljač", filter: true, floatingFilter: true, flex: 1 },
     { field: 'action', cellRenderer: EditButtonComponent, flex: 1 },
   ],[]);
 
@@ -51,7 +73,7 @@ const ProductsPage = () => {
         paginationPageSizeSelector={paginationPageSizeSelector}
       />
       <div className="flex justify-center w-1/3 px-4">
-        <ProductForm />
+        <ProductForm setRowData={setRowData} categories={categories} getSubcategories={getSubcategories} suppliers={suppliers} />
       </div>
     </div>
   );

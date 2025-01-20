@@ -28,7 +28,7 @@ const formSchema = z.object({
   })
 });
 
-export default function CategoryForm({ setRowData }: any) {
+export default function ShipperForm({ setRowData }: any) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,6 +43,8 @@ export default function CategoryForm({ setRowData }: any) {
       const response: AxiosResponse = await api.post("/shippers/", values);
       if (response) {
         alert("Uspesno unet dostavljac!");
+        setRowData((prev: any) => [...prev, values]);
+        form.reset();
       }
     } catch {
       alert("Greska prilikom unosenja dostavljaca");
@@ -55,8 +57,8 @@ export default function CategoryForm({ setRowData }: any) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <FormLabel className="text-2xl text-black">
-          Unesi novog dostavljaca
+        <FormLabel className="text-3xl text-gray-700">
+          Unesi novog dostavljača
         </FormLabel>
         <FormField
           control={form.control}
@@ -64,7 +66,7 @@ export default function CategoryForm({ setRowData }: any) {
           render={({ field }) => (
             <FormItem className="text-gray-600">
               <FormControl>
-                <Input placeholder={`Ime dostavljaca... `} {...field} />
+                <Input placeholder={`Ime dostavljača... `} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -77,7 +79,7 @@ export default function CategoryForm({ setRowData }: any) {
           render={({ field }) => (
             <FormItem className="text-gray-600">
               <FormControl>
-                <Input placeholder={`Telefon dostavljaca... `} {...field} />
+                <Input placeholder={`Telefon dostavljača... `} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -90,7 +92,7 @@ export default function CategoryForm({ setRowData }: any) {
           render={({ field }) => (
             <FormItem className="text-gray-600">
               <FormControl>
-                <Input type="email" placeholder={`Email dostavljaca... `} {...field} />
+                <Input type="email" placeholder={`Email dostavljača... `} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
